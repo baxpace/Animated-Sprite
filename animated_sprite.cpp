@@ -10,12 +10,9 @@
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 960;
 const int PLAYER_SPEED = 10;
+const int ENEMY_SIZE = 32;  // Replace 32 with the actual width/height of your enemy texture
 int posX = SCREEN_WIDTH / 2;
 int posY = SCREEN_HEIGHT / 2;
-int enemyX = SCREEN_WIDTH / 3;
-int enemyY = SCREEN_HEIGHT / 3;
-const int ENEMY_SIZE = 32;  // Replace 32 with the actual width/height of your enemy texture
-const int ENEMY_SPEED = 6;
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
 int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
 
@@ -37,12 +34,7 @@ bool loadMedia();
 //Frees media and shuts down SDL
 void close();
 
-// Function to move enemy toward player
-void moveEnemies(float deltaTim);
-
-// Function to spawn enemy outside viewport
-void spawnEnemy();
-
+// Move enemy towards player function
 void moveEnemies(float speed);
 
 //The window we'll be rendering to
@@ -126,51 +118,6 @@ bool loadMedia()
 	}
 	return success;
 }
-
-void spawnEnemy()
-{
-    int side = rand() % 4; // 0 = Top, 1 = Bottom, 2 = Left, 3 = Right
-
-    switch (side)
-    {
-        case 0: // Spawn above the screen
-            enemyX = rand() % SCREEN_WIDTH;
-            enemyY = -ENEMY_SIZE;
-            break;
-        case 1: // Spawn below the screen
-            enemyX = rand() % SCREEN_WIDTH;
-            enemyY = SCREEN_HEIGHT + ENEMY_SIZE;
-            break;
-        case 2: // Spawn to the left
-            enemyX = -ENEMY_SIZE;
-            enemyY = rand() % SCREEN_HEIGHT;
-            break;
-        case 3: // Spawn to the right
-            enemyX = SCREEN_WIDTH + ENEMY_SIZE;
-            enemyY = rand() % SCREEN_HEIGHT;
-            break;
-    }
-}
-
-// Function to move enemy toward player
-// void moveEnemy(float deltaTime)
-// {
-//     // Calculate direction vector
-//     float dx = posX - enemyX;
-//     float dy = posY - enemyY;
-//     float length = sqrt(dx * dx + dy * dy);
-
-//     if (length != 0)
-//     {
-//         // Normalize direction
-//         dx /= length;
-//         dy /= length;
-
-//         // Move enemy towards player
-//         enemyX += dx * ENEMY_SPEED * deltaTime;
-//         enemyY += dy * ENEMY_SPEED * deltaTime;
-//     }
-// }
 
 // Move enemy towards player function
 void moveEnemies(float speed)

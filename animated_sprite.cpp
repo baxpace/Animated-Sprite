@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string>
 #include <cmath>  // For sqrt and atan2
+#include <vector>
 #include "entities/player/textures.h"
 #include "entities/player/sprite_data.h"
 
@@ -14,9 +15,18 @@ int posY = SCREEN_HEIGHT / 2;
 int enemyX = SCREEN_WIDTH / 3;
 int enemyY = SCREEN_HEIGHT / 3;
 const int ENEMY_SIZE = 32;  // Replace 32 with the actual width/height of your enemy texture
-const int ENEMY_SPEED = 3;
+const int ENEMY_SPEED = 6;
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
 int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
+
+struct Enemy
+{
+	float x, y;
+	Enemy(float startX, float startY) : x(startX), y(startY) {}
+};
+
+// List to track all active enemies
+std::vector<Enemy> enemies;
 
 //Starts up SDL and creates window
 bool init();
@@ -28,10 +38,12 @@ bool loadMedia();
 void close();
 
 // Function to move enemy toward player
-void moveEnemy(float deltaTim);
+void moveEnemies(float deltaTim);
 
 // Function to spawn enemy outside viewport
 void spawnEnemy();
+
+void moveEnemies(float speed);
 
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
@@ -141,23 +153,40 @@ void spawnEnemy()
 }
 
 // Function to move enemy toward player
-void moveEnemy(float deltaTime)
+// void moveEnemy(float deltaTime)
+// {
+//     // Calculate direction vector
+//     float dx = posX - enemyX;
+//     float dy = posY - enemyY;
+//     float length = sqrt(dx * dx + dy * dy);
+
+//     if (length != 0)
+//     {
+//         // Normalize direction
+//         dx /= length;
+//         dy /= length;
+
+//         // Move enemy towards player
+//         enemyX += dx * ENEMY_SPEED * deltaTime;
+//         enemyY += dy * ENEMY_SPEED * deltaTime;
+//     }
+// }
+
+// Move enemy towards player function
+void moveEnemies(float speed)
 {
-    // Calculate direction vector
-    float dx = posX - enemyX;
-    float dy = posY - enemyY;
-    float length = sqrt(dx * dx + dy * dy);
+	for (auto& enemy : enemies)
+	{
+		float deltaX = posX - enemy.x;
+		float deltaY = posY - enemy.y;
+		float length = sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    if (length != 0)
-    {
-        // Normalize direction
-        dx /= length;
-        dy /= length;
-
-        // Move enemy towards player
-        enemyX += dx * ENEMY_SPEED * deltaTime;
-        enemyY += dy * ENEMY_SPEED * deltaTime;
-    }
+		if (length > 1.0f) // Prevent jittering when too close
+		{
+			enemy.x += (deltaX / length) * speed;
+			enemy.y += (deltaY / length) * speed;
+		}
+	}
 }
 
 void close()
@@ -221,28 +250,33 @@ int main( int argc, char* args[] )
 				if (currentTime - lastSpawnTime >= nextSpawnTime)
 				{
 					// Spawn outside viewport
+					int spawnX, spawnY;
 					int side = rand() % 4;
+
 					switch (side)
 					{
 						case 0: // Top
-							enemyX = rand() % SCREEN_WIDTH;
-							enemyY = -ENEMY_HEIGHT;
+							spawnX = rand() % SCREEN_WIDTH;
+							spawnY = -ENEMY_HEIGHT;
 							break;
 						case 1: // Bottom
-							enemyX = rand() % SCREEN_WIDTH;
-							enemyY = SCREEN_HEIGHT;
+							spawnX = rand() % SCREEN_WIDTH;
+							spawnY = SCREEN_HEIGHT;
 							break;
 						case 2: // Left
-							enemyX = -ENEMY_WIDTH;
-							enemyY = rand() % SCREEN_HEIGHT;
+							spawnX = -ENEMY_WIDTH;
+							spawnY = rand() % SCREEN_HEIGHT;
 							break;
 						case 3: // Right
-							enemyX = SCREEN_WIDTH;
-							enemyY = rand() % SCREEN_HEIGHT;
+							spawnX = SCREEN_WIDTH;
+							spawnY = rand() % SCREEN_HEIGHT;
 							break;
 					}
-			
-					// Update spawn timing
+
+			        // Add new enemy to the list
+					enemies.emplace_back(spawnX, spawnY);
+
+					// Reset spawn timing
 					lastSpawnTime = currentTime;
 					nextSpawnTime = 1000 + (rand() % 3000); // New 1-4s interval
 				}
@@ -273,23 +307,18 @@ int main( int argc, char* args[] )
 					currentClip = &gSpriteClipsRight[frame / 4];
 				}
 			
-				// Move enemy toward player
-				float enemySpeed = 1.0f; // Adjust speed as needed
-				float deltaX = posX - enemyX;
-				float deltaY = posY - enemyY;
-				float length = sqrt(deltaX * deltaX + deltaY * deltaY);
-				if (length > 0)
-				{
-					enemyX += (deltaX / length) * enemySpeed;
-					enemyY += (deltaY / length) * enemySpeed;
-				}
-			
+				// Move each enemy toward player
+				moveEnemies(1.5f); // Adjust speed as needed
+				
 				// Clear screen **only once per frame**
 				SDL_SetRenderDrawColor(gRenderer, 0x87, 0x87, 0x95, 0xFF);
 				SDL_RenderClear(gRenderer);
 			
-				// Render enemy
-				gCupcakeTexture.render(enemyX, enemyY);
+				// Render all enemies
+				for (const auto& enemy : enemies)
+				{
+					gCupcakeTexture.render(enemy.x, enemy.y);
+				}
 			
 				// Render player at updated position
 				gSpriteSheetTexture.render(posX, posY, currentClip);

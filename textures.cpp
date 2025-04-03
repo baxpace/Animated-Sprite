@@ -1,65 +1,20 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <string>
-#include "entities/player/player_texture.h"
+#include "textures.h"
 
-class CupcakeTexture
-{
-	public:
-		//Initializes variables
-		CupcakeTexture();
-
-		//Deallocates memory
-		~CupcakeTexture();
-
-		//Loads image at specified path
-		bool loadFromFile( std::string path );
-
-		//Deallocates texture
-		void free();
-
-		//Renders texture at given point
-		// void render();
-
-		//Gets image dimensions
-		int getWidth();
-		int getHeight();
-
-	private:
-		//The actual hardware texture
-		SDL_Texture* mTexture;
-
-		//Image dimensions
-		int mWidth;
-		int mHeight;
-        //The X and Y offsets of the dot
-		int mPosX, mPosY;
-
-		//The velocity of the dot
-		int mVelX, mVelY;
-};
-
-SDL_Renderer* gRenderer = NULL;
-CupcakeTexture cupcakeTexture;
-
-CupcakeTexture::CupcakeTexture()
+PTexture::PTexture()
 {
 	//Initialize
 	mTexture = NULL;
 	mWidth = 0;
 	mHeight = 0;
-    //Initialize the velocity
-    mVelX = 0;
-    mVelY = 0;
 }
 
-CupcakeTexture::~CupcakeTexture()
+PTexture::~PTexture()
 {
 	//Deallocate
 	free();
 }
 
-bool CupcakeTexture::loadFromFile( std::string path )
+bool PTexture::loadFromFile( std::string path )
 {
 	//Get rid of preexisting texture
 	free();
@@ -100,7 +55,7 @@ bool CupcakeTexture::loadFromFile( std::string path )
 	return mTexture != NULL;
 }
 
-void CupcakeTexture::free()
+void PTexture::free()
 {
 	//Free texture if it exists
 	if( mTexture != NULL )
@@ -112,19 +67,32 @@ void CupcakeTexture::free()
 	}
 }
 
-// void CupcakeTexture::render()
-// {
-//     //Show the dot
-// 	cupcakeTexture.render( mPosX, mPosY );
-// }
+void PTexture::render( int x, int y, SDL_Rect* clip ) const
+{
+	//Set rendering space and render to screen
+	SDL_Rect renderQuad = { x, y, mWidth, mHeight };
 
+	//Set clip rendering dimensions
+	if( clip != NULL )
+	{
+		renderQuad.w = clip->w;
+		renderQuad.h = clip->h;
+	}
 
-int CupcakeTexture::getWidth()
+	//Render to screen
+	SDL_RenderCopy( gRenderer, mTexture, clip, &renderQuad );
+}
+
+int PTexture::getWidth() const
 {
 	return mWidth;
 }
 
-int CupcakeTexture::getHeight()
+int PTexture::getHeight() const
 {
 	return mHeight;
 }
+
+SDL_Renderer* gRenderer = nullptr;
+PTexture gSpriteSheetTexture;
+PTexture gCupcakeTexture;

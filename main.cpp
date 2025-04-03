@@ -1,11 +1,14 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
+#include <iostream>
 #include <string>
 #include <cmath>  // For sqrt and atan2
 #include <vector>
-#include "entities/player/textures.h"
-#include "entities/player/sprite_data.h"
+// #include "textures.h"
+#include "sprite_data.h"
+#include "enemy.h"
+#include <typeinfo>
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 960;
@@ -13,17 +16,11 @@ const int PLAYER_SPEED = 10;
 const int ENEMY_SIZE = 32;  // Replace 32 with the actual width/height of your enemy texture
 int posX = SCREEN_WIDTH / 2;
 int posY = SCREEN_HEIGHT / 2;
+
+// PTexture gCupcakeTexture;
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
 int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
 
-struct Enemy
-{
-	float x, y;
-	Enemy(float startX, float startY) : x(startX), y(startY) {}
-};
-
-// List to track all active enemies
-std::vector<Enemy> enemies;
 
 //Starts up SDL and creates window
 bool init();
@@ -35,7 +32,10 @@ bool loadMedia();
 void close();
 
 // Move enemy towards player function
-void moveEnemies(float speed);
+// void moveEnemies(float speed);
+
+// List to track all active enemies
+// std::vector<Enemy> enemies;
 
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
@@ -99,16 +99,17 @@ bool loadMedia()
 	bool success = true;
 
 	//Load sprite sheet texture
-	if( !gSpriteSheetTexture.loadFromFile( "entities/player/HC_Humans1A_4x.png" ) )
+	if( !gSpriteSheetTexture.loadFromFile( "HC_Humans1A_4x.png" ) )
 	{
 		printf( "Failed to load walking animation texture!\n" );
 		success = false;
 	}
-	if( !gCupcakeTexture.loadFromFile( "entities/enemies/cupcake/cupcake.png" ) )
+	if( !gCupcakeTexture.loadFromFile( "cupcake.png" ) )
     {
         printf( "Failed to load enemy texture!\n" );
         success = false;
     }
+	else
 	{
 		//Set sprite clips from sprite_data.h
         animateSriteDown();
@@ -232,7 +233,7 @@ int main( int argc, char* args[] )
 				const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 				SDL_Rect* currentClip = &gSpriteClipsDown[1]; // Default sprite
 			
-				// Handle movement & animation
+				// Handle player movement & animation
 				if (currentKeyStates[SDL_SCANCODE_UP])
 				{
 					posY -= PLAYER_SPEED;
@@ -253,19 +254,23 @@ int main( int argc, char* args[] )
 					posX += PLAYER_SPEED;
 					currentClip = &gSpriteClipsRight[frame / 4];
 				}
+
+				// Spawns enemies on timer
+				spawnEnemy();           
 			
 				// Move each enemy toward player
-				moveEnemies(1.5f); // Adjust speed as needed
+				moveEnemies(1.5f, posX, posY);; // Adjust speed as needed
 				
 				// Clear screen **only once per frame**
 				SDL_SetRenderDrawColor(gRenderer, 0x87, 0x87, 0x95, 0xFF);
 				SDL_RenderClear(gRenderer);
 			
-				// Render all enemies
-				for (const auto& enemy : enemies)
-				{
-					gCupcakeTexture.render(enemy.x, enemy.y);
-				}
+				// Render enemies & player
+				renderEnemies(gRenderer, gCupcakeTexture); 
+
+				// std::cout << "Type of gCupcakeTexture: " << typeid(gCupcakeTexture).name() << std::endl;
+
+				gSpriteSheetTexture.render(posX, posY, currentClip);
 			
 				// Render player at updated position
 				gSpriteSheetTexture.render(posX, posY, currentClip);

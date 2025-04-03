@@ -38,27 +38,54 @@ void spawnEnemy()
     nextSpawnTime = 1000 + (rand() % 3000); // Reset spawn timer
 }
 
-void moveEnemies(float speed, float playerX, float playerY)
-{
-    for (auto& enemy : enemies)
-    {
-        float deltaX = playerX - enemy.x;
-        float deltaY = playerY - enemy.y;
-        float length = sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        if (length > 1.0f)
-        {
-            enemy.x += (deltaX / length) * speed;
-            enemy.y += (deltaY / length) * speed;
-        }
-    }
-}
-
 // Render enemies
 void renderEnemies(SDL_Renderer* renderer, const PTexture& enemyTexture)
 {
     for (const auto& enemy : enemies)
     {
         enemyTexture.render(enemy.x, enemy.y);
+    }
+}
+
+void moveEnemies(std::vector<Enemy>& enemies, float posX, float posY, float playerWidth, float playerHeight, float speed) {
+    float targetX = posX + playerWidth / 2.0f;  // Adjust target to center
+    float targetY = posY + playerHeight / 2.0f;
+
+    for (auto& enemy : enemies) {
+        float dx = targetX - enemy.x;
+        float dy = targetY - enemy.y;
+        float distance = sqrt(dx * dx + dy * dy);
+
+        if (distance > 0) {  // Avoid division by zero
+            float moveX = (dx / distance) * speed;
+            float moveY = (dy / distance) * speed;
+
+            enemy.x += moveX;
+            enemy.y += moveY;
+        }
+    }
+}
+
+void separateEnemies(std::vector<Enemy>& enemies, float minDistance) {
+    for (size_t i = 0; i < enemies.size(); i++) {
+        for (size_t j = i + 1; j < enemies.size(); j++) {
+            float dx = enemies[j].x - enemies[i].x;
+            float dy = enemies[j].y - enemies[i].y;
+            float distance = sqrt(dx * dx + dy * dy);
+
+            if (distance < minDistance && distance > 0) { // Avoid division by zero
+                float overlap = (minDistance - distance) / 2.0f;
+
+                // Normalize displacement vector
+                float nx = dx / distance;
+                float ny = dy / distance;
+
+                // Push enemies apart
+                enemies[i].x -= nx * overlap;
+                enemies[i].y -= ny * overlap;
+                enemies[j].x += nx * overlap;
+                enemies[j].y += ny * overlap;
+            }
+        }
     }
 }

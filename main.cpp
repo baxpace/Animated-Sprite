@@ -10,8 +10,8 @@
 #include "enemy.h"
 #include <typeinfo>
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 960;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 const int PLAYER_SPEED = 10;
 const int ENEMY_SIZE = 32;  // Replace 32 with the actual width/height of your enemy texture
 int posX = SCREEN_WIDTH / 2;
@@ -60,7 +60,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -121,21 +121,21 @@ bool loadMedia()
 }
 
 // Move enemy towards player function
-void moveEnemies(float speed)
-{
-	for (auto& enemy : enemies)
-	{
-		float deltaX = posX - enemy.x;
-		float deltaY = posY - enemy.y;
-		float length = sqrt(deltaX * deltaX + deltaY * deltaY);
+// void moveEnemies(float speed)
+// {
+// 	for (auto& enemy : enemies)
+// 	{
+// 		float deltaX = posX - enemy.x;
+// 		float deltaY = posY - enemy.y;
+// 		float length = sqrt(deltaX * deltaX + deltaY * deltaY);
 
-		if (length > 1.0f) // Prevent jittering when too close
-		{
-			enemy.x += (deltaX / length) * speed;
-			enemy.y += (deltaY / length) * speed;
-		}
-	}
-}
+// 		if (length > 1.0f) // Prevent jittering when too close
+// 		{
+// 			enemy.x += (deltaX / length) * speed;
+// 			enemy.y += (deltaY / length) * speed;
+// 		}
+// 	}
+// }
 
 void close()
 {
@@ -259,7 +259,10 @@ int main( int argc, char* args[] )
 				spawnEnemy();           
 			
 				// Move each enemy toward player
-				moveEnemies(1.5f, posX, posY);; // Adjust speed as needed
+				moveEnemies(enemies, posX, posY, 64, 128, 2.0f);
+
+				// push enemies apart by adjusting their velocities or positions.
+				separateEnemies(enemies, 30.0f);
 				
 				// Clear screen **only once per frame**
 				SDL_SetRenderDrawColor(gRenderer, 0x87, 0x87, 0x95, 0xFF);
@@ -268,10 +271,6 @@ int main( int argc, char* args[] )
 				// Render enemies & player
 				renderEnemies(gRenderer, gCupcakeTexture); 
 
-				// std::cout << "Type of gCupcakeTexture: " << typeid(gCupcakeTexture).name() << std::endl;
-
-				gSpriteSheetTexture.render(posX, posY, currentClip);
-			
 				// Render player at updated position
 				gSpriteSheetTexture.render(posX, posY, currentClip);
 			

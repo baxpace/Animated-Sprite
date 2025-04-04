@@ -5,17 +5,17 @@
 #include <string>
 #include <cmath>  // For sqrt and atan2
 #include <vector>
-// #include "textures.h"
 #include "sprite_data.h"
 #include "enemy.h"
 #include <typeinfo>
 
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
-const int PLAYER_SPEED = 10;
+// const int SCREEN_WIDTH = 1920;
+// const int SCREEN_HEIGHT = 1080;
+int windowWidth, windowHeight;
+const int PLAYER_SPEED = 8;
 const int ENEMY_SIZE = 32;  // Replace 32 with the actual width/height of your enemy texture
-int posX = SCREEN_WIDTH / 2;
-int posY = SCREEN_HEIGHT / 2;
+int posX = windowWidth / 2;
+int posY = windowHeight / 2;
 
 // PTexture gCupcakeTexture;
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
@@ -30,12 +30,6 @@ bool loadMedia();
 
 //Frees media and shuts down SDL
 void close();
-
-// Move enemy towards player function
-// void moveEnemies(float speed);
-
-// List to track all active enemies
-// std::vector<Enemy> enemies;
 
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
@@ -60,7 +54,8 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1920, 1080, SDL_WINDOW_MAXIMIZED | SDL_WINDOW_SHOWN );
+
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -120,23 +115,6 @@ bool loadMedia()
 	return success;
 }
 
-// Move enemy towards player function
-// void moveEnemies(float speed)
-// {
-// 	for (auto& enemy : enemies)
-// 	{
-// 		float deltaX = posX - enemy.x;
-// 		float deltaY = posY - enemy.y;
-// 		float length = sqrt(deltaX * deltaX + deltaY * deltaY);
-
-// 		if (length > 1.0f) // Prevent jittering when too close
-// 		{
-// 			enemy.x += (deltaX / length) * speed;
-// 			enemy.y += (deltaY / length) * speed;
-// 		}
-// 	}
-// }
-
 void close()
 {
 	//Destroy window	
@@ -179,6 +157,13 @@ int main( int argc, char* args[] )
 			Uint32 lastSpawnTime = 0;
 			Uint32 nextSpawnTime = 1000 + (rand() % 3000); // Random between 1000ms (1s) and 4000ms (4s)
 
+			//Get the screen width and height
+			SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
+
+			//spawn the player in the center of the screen
+			posX = windowWidth /2;
+			posY = windowHeight /2;
+			
 			//While application is running
 			while (!quit)
 			{
@@ -188,36 +173,45 @@ int main( int argc, char* args[] )
 					if (e.type == SDL_QUIT)
 					{
 						quit = true;
+					} else if (e.type == SDL_WINDOWEVENT) {
+						if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
+							SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
+						}
 					}
 				}
 			
 				// Get current time
 				Uint32 currentTime = SDL_GetTicks();
-			
+
 				// Spawn enemy if needed
 				if (currentTime - lastSpawnTime >= nextSpawnTime)
 				{
+					if (windowWidth == 0 || windowHeight == 0) {
+						return -1;
+					}
+
+					int buffer = 100; // Extra distance outside the screen
 					// Spawn outside viewport
 					int spawnX, spawnY;
 					int side = rand() % 4;
-
+					
 					switch (side)
 					{
 						case 0: // Top
-							spawnX = rand() % SCREEN_WIDTH;
-							spawnY = -ENEMY_HEIGHT;
+							spawnX = posX + (rand() % windowWidth) - (windowWidth / 2);
+							spawnY = posY - (windowHeight / 2) - buffer;
 							break;
 						case 1: // Bottom
-							spawnX = rand() % SCREEN_WIDTH;
-							spawnY = SCREEN_HEIGHT;
+							spawnX = posX + (rand() % windowWidth) - (windowWidth / 2);
+							spawnY = posY + (windowHeight / 2) + buffer;
 							break;
 						case 2: // Left
-							spawnX = -ENEMY_WIDTH;
-							spawnY = rand() % SCREEN_HEIGHT;
+							spawnX = posX - (windowWidth / 2) - buffer;
+							spawnY = posY + (rand() % windowHeight) - (windowHeight / 2);
 							break;
 						case 3: // Right
-							spawnX = SCREEN_WIDTH;
-							spawnY = rand() % SCREEN_HEIGHT;
+							spawnX = posX + (windowWidth / 2) + buffer;
+							spawnY = posY + (rand() % windowHeight) - (windowHeight / 2);
 							break;
 					}
 
@@ -258,11 +252,11 @@ int main( int argc, char* args[] )
 				// Spawns enemies on timer
 				spawnEnemy();           
 			
-				// Move each enemy toward player
-				moveEnemies(enemies, posX, posY, 64, 128, 2.0f);
+				// Move each enemy toward player (static player width/height currently being used)
+				moveEnemies(enemies, posX, posY, 64, 128, 1.25f);
 
 				// push enemies apart by adjusting their velocities or positions.
-				separateEnemies(enemies, 30.0f);
+				separateEnemies(enemies, 33.3f);
 				
 				// Clear screen **only once per frame**
 				SDL_SetRenderDrawColor(gRenderer, 0x87, 0x87, 0x95, 0xFF);

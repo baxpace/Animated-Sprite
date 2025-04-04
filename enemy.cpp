@@ -1,16 +1,19 @@
 #include "enemy.h"
 #include <cstdlib> // For rand()
+#include <iostream>
 #include <cmath>   // For sqrt
 
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 960;
+
 const int ENEMY_WIDTH = 32;    // Adjust based on your sprite size
 const int ENEMY_HEIGHT = 32;    // Adjust based on your sprite size
 
 Uint32 lastSpawnTime = 0;
 Uint32 nextSpawnTime = 1000 + (rand() % 3000);
 std::vector<Enemy> enemies;
+
 
 // Constructor
 Enemy::Enemy(float startX, float startY) : x(startX), y(startY) {}
@@ -64,6 +67,11 @@ void moveEnemies(std::vector<Enemy>& enemies, float posX, float posY, float play
             enemy.y += moveY;
         }
     }
+
+    for (size_t i = 0; i < enemies.size(); ++i) {
+        float enemyX = enemies[i].getX();
+        float enemyY = enemies[i].getY();
+    }
 }
 
 void separateEnemies(std::vector<Enemy>& enemies, float minDistance) {
@@ -88,4 +96,12 @@ void separateEnemies(std::vector<Enemy>& enemies, float minDistance) {
             }
         }
     }
+}
+
+int Enemy::getX() const {
+    return static_cast<int>(x);
+}
+
+int Enemy::getY() const {
+    return static_cast<int>(y);
 }

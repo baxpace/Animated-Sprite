@@ -6,6 +6,7 @@
 #include <cmath>  // For sqrt and atan2
 #include <vector>
 #include "sprite_data.h"
+#include "player.h"
 #include "enemy.h"
 #include <typeinfo>
 
@@ -13,11 +14,12 @@
 // const int SCREEN_HEIGHT = 1080;
 int windowWidth, windowHeight;
 const int PLAYER_SPEED = 8;
-const int ENEMY_SIZE = 32;  // Replace 32 with the actual width/height of your enemy texture
+
 int posX = windowWidth / 2;
 int posY = windowHeight / 2;
 
 // PTexture gCupcakeTexture;
+const int ENEMY_SIZE = gCupcakeTexture.getWidth();  
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
 int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
 
@@ -160,9 +162,8 @@ int main( int argc, char* args[] )
 			//Get the screen width and height
 			SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
 
-			//spawn the player in the center of the screen
-			posX = windowWidth /2;
-			posY = windowHeight /2;
+			//Set the player position in the center of the screen
+			Player player(windowWidth / 2, windowHeight / 2);
 			
 			//While application is running
 			while (!quit)
@@ -178,8 +179,11 @@ int main( int argc, char* args[] )
 							SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
 						}
 					}
+
+					//move player based on key input
+					player.handleEvent(e);
 				}
-			
+				
 				// Get current time
 				Uint32 currentTime = SDL_GetTicks();
 
@@ -190,11 +194,11 @@ int main( int argc, char* args[] )
 						return -1;
 					}
 
-					int buffer = 100; // Extra distance outside the screen
+					int buffer = 100;  // Extra distance outside the screen
+
 					// Spawn outside viewport
 					int spawnX, spawnY;
 					int side = rand() % 4;
-					
 					switch (side)
 					{
 						case 0: // Top
@@ -222,52 +226,62 @@ int main( int argc, char* args[] )
 					lastSpawnTime = currentTime;
 					nextSpawnTime = 1000 + (rand() % 3000); // New 1-4s interval
 				}
-			
+
+				// Player movement logic
+				int playerX = player.getX();
+				int playerY = player.getY();
+
+				// Set initial player position
+				player.setPosition(playerX, playerY);
+
 				// Get keyboard state
 				const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+
+				//Handle player movement & animation
 				SDL_Rect* currentClip = &gSpriteClipsDown[1]; // Default sprite
-			
-				// Handle player movement & animation
-				if (currentKeyStates[SDL_SCANCODE_UP])
-				{
-					posY -= PLAYER_SPEED;
+				if (currentKeyStates[SDL_SCANCODE_UP]) {
+					player.setY(player.getY() - PLAYER_SPEED);
 					currentClip = &gSpriteClipsUp[frame / 4];
 				}
-				else if (currentKeyStates[SDL_SCANCODE_DOWN])
-				{
-					posY += PLAYER_SPEED;
+				else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+					player.setY(player.getY() + PLAYER_SPEED);
 					currentClip = &gSpriteClipsDown[frame / 4];
 				}
-				else if (currentKeyStates[SDL_SCANCODE_LEFT])
-				{
-					posX -= PLAYER_SPEED;
+				else if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+					player.setX(player.getX() - PLAYER_SPEED);
 					currentClip = &gSpriteClipsLeft[frame / 4];
 				}
-				else if (currentKeyStates[SDL_SCANCODE_RIGHT])
-				{
-					posX += PLAYER_SPEED;
+				else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+					player.setX(player.getX() + PLAYER_SPEED);
 					currentClip = &gSpriteClipsRight[frame / 4];
 				}
+
+				// Keep player inside the window
+				SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
+				if (playerX < 0) playerX = 0;
+				if (playerY < 0) playerY = 0;
+				if (playerX > windowWidth - 50) playerX = windowWidth - 50;
+				if (playerY > windowHeight - 10) playerY = windowHeight - 10;
 
 				// Spawns enemies on timer
 				spawnEnemy();           
 			
 				// Move each enemy toward player (static player width/height currently being used)
-				moveEnemies(enemies, posX, posY, 64, 128, 1.25f);
+				moveEnemies(enemies, playerX, playerY, 64, 128, 1.25f);
 
 				// push enemies apart by adjusting their velocities or positions.
-				separateEnemies(enemies, 33.3f);
+				separateEnemies(enemies, 32.75f);
 				
 				// Clear screen **only once per frame**
 				SDL_SetRenderDrawColor(gRenderer, 0x87, 0x87, 0x95, 0xFF);
 				SDL_RenderClear(gRenderer);
-			
+
+				// Render player at updated position
+				player.render(gSpriteSheetTexture, currentClip);
+
 				// Render enemies & player
 				renderEnemies(gRenderer, gCupcakeTexture); 
 
-				// Render player at updated position
-				gSpriteSheetTexture.render(posX, posY, currentClip);
-			
 				// Update screen (only once per frame)
 				SDL_RenderPresent(gRenderer);
 			
@@ -280,7 +294,6 @@ int main( int argc, char* args[] )
 			}
 		}
 	}
-
 	//Free resources and close SDL
 	close();
 	return 0;

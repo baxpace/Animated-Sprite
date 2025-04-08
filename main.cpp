@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <iostream>
-// #include <cmath>  // For sqrt and atan2
-// #include <vector>
 #include "player.h"
 #include "enemy.h"
+#include "collision.h"
 #include <typeinfo>
 #include "initialize.h"
 #include "sprite_data.h"
@@ -160,6 +159,14 @@ int main( int argc, char* args[] )
 				// Move each enemy toward player (static player width/height currently being used)
 				moveEnemies(enemies, playerX, playerY, 64, 128, 1.25f);
 
+				if (SDL_GetTicks() > 2000 && !enemies.empty()) {   // Now safe to check collisions
+					for (size_t i = 0; i < enemies.size(); ++i) {
+						if (checkCollision(player.getCollisionBox(), enemies[i].getCollisionBox())) {
+							printf("Player hit by enemy %zu!\n", i);
+						}
+					}
+				}
+				
 				// push enemies apart by adjusting their velocities or positions.
 				separateEnemies(enemies, 32.75f);
 				

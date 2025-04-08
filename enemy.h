@@ -9,6 +9,7 @@ class Enemy {
         Enemy(float x, float y);
         void move(float speed, float playerX, float playerY);
         void render(SDL_Renderer* renderer, PTexture& texture) const;
+        SDL_Rect getCollisionBox() const;
         float x, y;
         int getX() const;
         int getY() const;

@@ -1,4 +1,5 @@
 #include "enemy.h"
+// #include "collision.h"
 #include <cstdlib> // For rand()
 #include <iostream>
 #include <cmath>   // For sqrt
@@ -73,6 +74,10 @@ void moveEnemies(std::vector<Enemy>& enemies, float posX, float posY, float play
         float enemyX = enemies[i].getX();
         float enemyY = enemies[i].getY();
     }
+}
+
+SDL_Rect Enemy::getCollisionBox() const {
+    return SDL_Rect{ static_cast<int>(x), static_cast<int>(y), 64, 64 }; // Adjust to your enemy texture size
 }
 
 void separateEnemies(std::vector<Enemy>& enemies, float minDistance) {

@@ -3,6 +3,8 @@
 #include <SDL2/SDL.h>
 #include "textures.h"
 
+
+
 class Player {
 public:
     Player(int x, int y);
@@ -15,7 +17,8 @@ public:
     int getY() const;
     void setX(int x);
     void setY(int y);
-     
+    SDL_Rect getCollisionBox() const;
+    
 private:
     int posX = 0, posY = 0;
     int velX = 0, velY = 0;

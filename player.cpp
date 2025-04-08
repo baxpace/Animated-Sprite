@@ -1,4 +1,5 @@
 #include "player.h"
+// #include "collision.h"
 
 int Player::getX() const { return posX; }
 int Player::getY() const { return posY; }
@@ -28,6 +29,10 @@ void Player::handleEvent(const SDL_Event& e) {
     }
 }
 
+SDL_Rect Player::getCollisionBox() const {
+    return SDL_Rect{ posX, posY, 64, 128 };  // Adjust width/height if player texture change
+}
+
 void Player::setPosition(int x, int y) {
     posX = x;
     posY = y;
@@ -40,7 +45,7 @@ void Player::move(int windowWidth, int windowHeight) {
     // Clamp position to window boundaries
     if (posX < 0) posX = 0;
     if (posY < 0) posY = 0;
-    if (posX > windowWidth - 50) posX = windowWidth - 64; // Adjust for player texture size
+    if (posX > windowWidth - 50) posX = windowWidth - 64; // Adjust for player if texture size changes
     if (posY > windowHeight - 50) posY = windowHeight - 128;
 }
 

@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <iostream>
-#include <string>
-#include <cmath>  // For sqrt and atan2
-#include <vector>
+// #include <cmath>  // For sqrt and atan2
+// #include <vector>
 #include "player.h"
 #include "enemy.h"
 #include <typeinfo>
-#include "initialize.cpp"
+#include "initialize.h"
+#include "sprite_data.h"
 
 // const int SCREEN_WIDTH = 1920;
 // const int SCREEN_HEIGHT = 1080;

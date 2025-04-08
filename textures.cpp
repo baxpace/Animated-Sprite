@@ -1,5 +1,9 @@
 #include "textures.h"
 
+SDL_Renderer* gRenderer = nullptr;
+PTexture gSpriteSheetTexture;
+PTexture gCupcakeTexture;
+
 PTexture::PTexture()
 {
 	//Initialize
@@ -93,6 +97,3 @@ int PTexture::getHeight() const
 	return mHeight;
 }
 
-SDL_Renderer* gRenderer = nullptr;
-PTexture gSpriteSheetTexture;
-PTexture gCupcakeTexture;

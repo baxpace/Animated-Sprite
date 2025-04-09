@@ -1,22 +1,20 @@
 #include <stdio.h>
 #include <iostream>
-#include "player.h"
+#include <typeinfo>
 #include "enemy.h"
 #include "collision.h"
-#include <typeinfo>
 #include "initialize.h"
+#include "player.h"
 #include "sprite_data.h"
 
 // const int SCREEN_WIDTH = 1920;
 // const int SCREEN_HEIGHT = 1080;
 int windowWidth, windowHeight;
 const int PLAYER_SPEED = 8;
-
 int posX = windowWidth / 2;
 int posY = windowHeight / 2;
 
 // PTexture gCupcakeTexture;
-const int ENEMY_SIZE = gCupcakeTexture.getWidth();  
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
 int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
 
@@ -47,7 +45,9 @@ int main( int argc, char* args[] )
 
 			// Enemy spawn timing variables
 			Uint32 lastSpawnTime = 0;
-			Uint32 nextSpawnTime = 1000 + (rand() % 3000); // Random between 1000ms (1s) and 4000ms (4s)
+
+			// Random between 1000ms (1s) and 4000ms (4s)
+			Uint32 nextSpawnTime = 1000 + (rand() % 3000); 
 
 			//Get the screen width and height
 			SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
@@ -69,7 +69,6 @@ int main( int argc, char* args[] )
 							SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
 						}
 					}
-
 					//move player based on key input
 					player.handleEvent(e);
 				}
@@ -159,11 +158,14 @@ int main( int argc, char* args[] )
 				// Move each enemy toward player (static player width/height currently being used)
 				moveEnemies(enemies, playerX, playerY, 64, 128, 1.25f);
 
-				if (SDL_GetTicks() > 2000 && !enemies.empty()) {   // Now safe to check collisions
-					for (size_t i = 0; i < enemies.size(); ++i) {
-						if (checkCollision(player.getCollisionBox(), enemies[i].getCollisionBox())) {
-							printf("Player hit by enemy %zu!\n", i);
-						}
+				//check collision and if true, pop enemy off of list and remove from game
+				for (auto it = enemies.begin(); it != enemies.end(); ) {
+					if (checkCollision(player.getCollisionBox(), it->getCollisionBox())) {
+						player.reduceHealth(2);
+						// TODO: increment kill count
+						it = enemies.erase(it); // Remove the enemy
+					} else {
+						++it;
 					}
 				}
 				
@@ -176,6 +178,10 @@ int main( int argc, char* args[] )
 
 				// Render player at updated position
 				player.render(gSpriteSheetTexture, currentClip);
+
+				SDL_Rect healthBar = player.getHealthBarRect();
+				SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Red
+				SDL_RenderFillRect(gRenderer, &healthBar);
 
 				// Render enemies & player
 				renderEnemies(gRenderer, gCupcakeTexture); 
@@ -194,5 +200,6 @@ int main( int argc, char* args[] )
 	}
 	//Free resources and close SDL
 	close();
+	//smoke a bowl
 	return 0;
 }

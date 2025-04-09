@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <string>
 
 class PTexture
@@ -35,6 +34,6 @@ class PTexture
 		int mHeight;
 };
 
-extern SDL_Renderer* gRenderer;
-extern PTexture gSpriteSheetTexture;
+//Player texture defined in sprite_data.cpp
+extern PTexture gSpriteSheetTexture; 
 extern PTexture gCupcakeTexture;

@@ -60,7 +60,8 @@ bool init()
 	return success;
 }
 
-bool loadMedia()
+//load the player, enemy and sprite sheet animations
+bool loadMedia() 
 {
 	//Loading success flag
 	bool success = true;
@@ -78,11 +79,11 @@ bool loadMedia()
     }
 	else
 	{
-		//Set sprite clips from sprite_data.h
-        animateSriteDown();
-        animateSriteLeft();
-        animateSriteRight();
-        animateSriteUp();
+		//Set sprite clips called from sprite_data.cpp
+        animateSpriteDown();
+        animateSpriteLeft();
+        animateSpriteRight();
+        animateSpriteUp();
 	}
 	return success;
 }

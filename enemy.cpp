@@ -1,14 +1,7 @@
 #include "enemy.h"
-// #include "collision.h"
-#include <cstdlib> // For rand()
-#include <iostream>
-#include <cmath>   // For sqrt
-// #include <vector>
-
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 960;
-
 const int ENEMY_WIDTH = 32;    // Adjust based on your sprite size
 const int ENEMY_HEIGHT = 32;    // Adjust based on your sprite size
 
@@ -77,7 +70,7 @@ void moveEnemies(std::vector<Enemy>& enemies, float posX, float posY, float play
 }
 
 SDL_Rect Enemy::getCollisionBox() const {
-    return SDL_Rect{ static_cast<int>(x), static_cast<int>(y), 64, 64 }; // Adjust to your enemy texture size
+    return SDL_Rect{ static_cast<int>(x), static_cast<int>(y), 32, 32 }; // Adjust to your enemy texture size
 }
 
 void separateEnemies(std::vector<Enemy>& enemies, float minDistance) {

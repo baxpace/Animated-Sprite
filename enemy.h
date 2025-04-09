@@ -15,9 +15,8 @@ class Enemy {
         int getY() const;
     };
 
-// Enemy functions
 extern void spawnEnemy();
+extern std::vector<Enemy> enemies; // Places spawed enemies in a list
 extern void moveEnemies(std::vector<Enemy>& enemies, float playerX, float playerY, float playerWidth, float playerHeight, float speed);
 extern void renderEnemies(SDL_Renderer* gRenderer, const PTexture& enemyTexture);
 extern void separateEnemies(std::vector<Enemy>& enemies, float minDistance);
-extern std::vector<Enemy> enemies; // Make enemies list accessible

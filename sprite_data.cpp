@@ -1,3 +1,5 @@
+//Coordinates for player on sprite sheet with animations for each direction
+
 #include "sprite_data.h"
 
 const int WALKING_ANIMATION_FRAMES = 4;
@@ -7,7 +9,7 @@ SDL_Rect gSpriteClipsLeft[WALKING_ANIMATION_FRAMES];
 SDL_Rect gSpriteClipsRight[WALKING_ANIMATION_FRAMES];
 SDL_Rect gSpriteClipsUp[WALKING_ANIMATION_FRAMES];
 
-void animateSriteDown() {
+void animateSpriteDown() {
     gSpriteClipsDown[ 0 ].x =   0;
     gSpriteClipsDown[ 0 ].y =   0;
     gSpriteClipsDown[ 0 ].w =  64;
@@ -29,7 +31,7 @@ void animateSriteDown() {
     gSpriteClipsDown[ 3 ].h = 128;
 }
 
-void animateSriteLeft() {
+void animateSpriteLeft() {
     gSpriteClipsLeft[ 0 ].x =   0;
     gSpriteClipsLeft[ 0 ].y = 128;
     gSpriteClipsLeft[ 0 ].w =  64;
@@ -51,7 +53,7 @@ void animateSriteLeft() {
     gSpriteClipsLeft[ 3 ].h = 128;
 }
 
-void animateSriteRight() {
+void animateSpriteRight() {
     gSpriteClipsRight[ 0 ].x =   0;
     gSpriteClipsRight[ 0 ].y = 256;
     gSpriteClipsRight[ 0 ].w =  64;
@@ -73,7 +75,7 @@ void animateSriteRight() {
     gSpriteClipsRight[ 3 ].h = 128;
 }
 
-void animateSriteUp() {
+void animateSpriteUp() {
     gSpriteClipsUp[ 0 ].x =   0;
     gSpriteClipsUp[ 0 ].y = 384;
     gSpriteClipsUp[ 0 ].w =  64;

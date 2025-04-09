@@ -1,3 +1,4 @@
+#include <SDL2/SDL_image.h>
 #include "textures.h"
 
 SDL_Renderer* gRenderer = nullptr;

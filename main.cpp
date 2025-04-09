@@ -179,8 +179,18 @@ int main( int argc, char* args[] )
 				// Render player at updated position
 				player.render(gSpriteSheetTexture, currentClip);
 
+				// Render health bar border
+				SDL_Rect healthBorder = player.getHealthBarBorderRect();
+				SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255); // Black border
+				SDL_RenderFillRect(gRenderer, &healthBorder);
+
+				// Render health bar over top of border
 				SDL_Rect healthBar = player.getHealthBarRect();
-				SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Red
+				if (player.isFlashing()) {
+					SDL_SetRenderDrawColor(gRenderer, 255, 100, 100, 255); // Light red flash
+				} else {
+					SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
+				}
 				SDL_RenderFillRect(gRenderer, &healthBar);
 
 				// Render enemies & player

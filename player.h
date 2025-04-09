@@ -6,7 +6,6 @@
 class Player {
 public:
     Player(int x, int y);
-
     void handleEvent(const SDL_Event& e);
     void move(int windowWidth, int windowHeight);
     void render(PTexture& texture, SDL_Rect* currentClip = nullptr) const;
@@ -17,8 +16,11 @@ public:
     void setY(int y);
     SDL_Rect getCollisionBox() const;
     void reduceHealth(int amount);
+    Uint32 lastDamageTime = 0; // Tracks when damage occurred
+    bool isFlashing() const;
     int getHealth() const;
     SDL_Rect getHealthBarRect() const;
+    SDL_Rect getHealthBarBorderRect() const;
 
 private:
     int health;

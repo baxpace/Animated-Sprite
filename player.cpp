@@ -54,17 +54,33 @@ SDL_Rect Player::getCollisionBox() const {
 
 SDL_Rect Player::getHealthBarRect() const {
     SDL_Rect healthBar = {
-        static_cast<int>(posX),
-        static_cast<int>(posY) - 15, // 15px above the player
-        health,                      // Width based on health
-        10                           // Fixed height
+        static_cast<int>(posX) - 20,
+        static_cast<int>(posY) - 15,
+        health,
+        10
     };
     return healthBar;
+}
+
+SDL_Rect Player::getHealthBarBorderRect() const {
+    SDL_Rect border = {
+        static_cast<int>(posX) - 21,
+        static_cast<int>(posY) - 16,
+        102, // 100 health + 2px for the border
+        12   // 10px health bar + 2px border
+    };
+    return border;
 }
 
 void Player::reduceHealth(int amount) {
     health -= amount;
     if (health < 0) health = 0;
+    lastDamageTime = SDL_GetTicks(); // Log damage time
+}
+
+bool Player::isFlashing() const {
+    Uint32 currentTime = SDL_GetTicks();
+    return currentTime - lastDamageTime < 200; // Flash for 200ms
 }
 
 int Player::getHealth() const {

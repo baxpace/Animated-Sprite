@@ -45,7 +45,7 @@ int main( int argc, char* args[] )
 			Player player(windowWidth / 2, windowHeight / 2);		 	// Set the player position in the center of the screen
 			Uint32 currentTicks = SDL_GetTicks();						// Get current time
 			float deltaTime = (currentTicks - lastTicks) / 1000.0f; 	// in seconds
-			Uint32 currentTime = SDL_GetTicks();      
+  
 
 			lastTicks = currentTicks;
 			std::vector<Particle> particles;							// a vector for spawned particles
@@ -66,6 +66,48 @@ int main( int argc, char* args[] )
 					}
 				}
 				
+				// Get current time
+
+
+				// Spawn enemy if needed
+				// if (currentTime - lastSpawnTime >= nextSpawnTime)
+				// {
+				// 	if (windowWidth == 0 || windowHeight == 0) {
+				// 		return -1;
+				// 	}
+				// 	// Extra distance outside the screen
+				// 	int buffer = 100;  
+				// 	// Spawn outside viewport
+				// 	int spawnX, spawnY;
+				// 	int side = rand() % 4;
+				// 	switch (side)
+				// 	{
+				// 		case 0: // Top
+				// 			spawnX = posX + (rand() % windowWidth) - (windowWidth / 2);
+				// 			spawnY = posY - (windowHeight / 2) - buffer;
+				// 			break;
+				// 		case 1: // Bottom
+				// 			spawnX = posX + (rand() % windowWidth) - (windowWidth / 2);
+				// 			spawnY = posY + (windowHeight / 2) + buffer;
+				// 			break;
+				// 		case 2: // Left
+				// 			spawnX = posX - (windowWidth / 2) - buffer;
+				// 			spawnY = posY + (rand() % windowHeight) - (windowHeight / 2);
+				// 			break;
+				// 		case 3: // Right
+				// 			spawnX = posX + (windowWidth / 2) + buffer;
+				// 			spawnY = posY + (rand() % windowHeight) - (windowHeight / 2);
+				// 			break;
+				// 	}
+
+			    //     // Add new enemy to the list
+				// 	enemies.emplace_back(spawnX, spawnY);
+
+				// 	// Reset spawn timing
+				// 	lastSpawnTime = currentTime;
+				// 	nextSpawnTime = 1000 + (rand() % 3000); // New 1-4s interval
+				// }
+
 				// Player movement logic
 				int playerX = player.getX();
 				int playerY = player.getY();
@@ -82,6 +124,7 @@ int main( int argc, char* args[] )
 				
 				// Spawns enemies on timer
 				// spawnEnemy();     
+				Uint32 currentTime = SDL_GetTicks();    
 				spawner.update(currentTime, enemies);
 			
 				// Move each enemy toward player (static player width/height currently being used)

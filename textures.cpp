@@ -72,21 +72,33 @@ void PTexture::free()
 	}
 }
 
-void PTexture::render( int x, int y, SDL_Rect* clip ) const
-{
-	//Set rendering space and render to screen
-	SDL_Rect renderQuad = { x, y, mWidth, mHeight };
+void PTexture::render(int x, int y, SDL_Rect* clip) const { //changed from float to int if you need to troubleshoot
+    SDL_Rect renderQuad = { static_cast<int>(x), static_cast<int>(y), mWidth, mHeight };
 
-	//Set clip rendering dimensions
-	if( clip != NULL )
-	{
-		renderQuad.w = clip->w;
-		renderQuad.h = clip->h;
-	}
+    // If a clip is provided, override width/height with that of the clip
+    if (clip != nullptr) {
+        renderQuad.w = clip->w;
+        renderQuad.h = clip->h;
+    }
 
-	//Render to screen
-	SDL_RenderCopy( gRenderer, mTexture, clip, &renderQuad );
+    SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);
 }
+
+// void PTexture::render( int x, int y, SDL_Rect* clip ) const
+// {
+// 	//Set rendering space and render to screen
+// 	SDL_Rect renderQuad = { x, y, mWidth, mHeight };
+
+// 	//Set clip rendering dimensions
+// 	if( clip != NULL )
+// 	{
+// 		renderQuad.w = clip->w;
+// 		renderQuad.h = clip->h;
+// 	}
+
+// 	//Render to screen
+// 	SDL_RenderCopy( gRenderer, mTexture, clip, &renderQuad );
+// }
 
 int PTexture::getWidth() const
 {

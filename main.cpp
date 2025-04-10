@@ -8,17 +8,14 @@
 #include "particle.h"
 #include "sprite_data.h"
 
-
 int windowWidth = 1920;
 int windowHeight = 1080;
-const int PLAYER_SPEED = 8;
 int posX = windowWidth / 2;
 int posY = windowHeight / 2;
 
 // PTexture gCupcakeTexture;
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
 int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
-
 
 Uint32 lastTicks = SDL_GetTicks(); 
 
@@ -65,7 +62,7 @@ int main( int argc, char* args[] )
 						}
 					}
 					//move player based on key input
-					player.handleEvent(e);
+					// player.handleEvent(e);
 				}
 				
 				// Get current time
@@ -121,23 +118,11 @@ int main( int argc, char* args[] )
 				const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
 				//Handle player movement & animation
-				SDL_Rect* currentClip = &gSpriteClipsDown[1]; // Default sprite
-				if (currentKeyStates[SDL_SCANCODE_UP]) {
-					player.setY(player.getY() - PLAYER_SPEED);
-					currentClip = &gSpriteClipsUp[frame / 4];
-				}
-				else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
-					player.setY(player.getY() + PLAYER_SPEED);
-					currentClip = &gSpriteClipsDown[frame / 4];
-				}
-				else if (currentKeyStates[SDL_SCANCODE_LEFT]) {
-					player.setX(player.getX() - PLAYER_SPEED);
-					currentClip = &gSpriteClipsLeft[frame / 4];
-				}
-				else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
-					player.setX(player.getX() + PLAYER_SPEED);
-					currentClip = &gSpriteClipsRight[frame / 4];
-				}
+				player.handleInput(currentKeyStates); // new function you'll add
+				player.move(windowWidth, windowHeight); // your existing function
+				
+				// SDL_Rect* currentClip = player.getCurrentAnimationClip(frame);
+				
 
 				// Spawns enemies on timer
 				spawnEnemy();           
@@ -160,7 +145,6 @@ int main( int argc, char* args[] )
 					}
 				}
 
-
 				// push enemies apart by adjusting their velocities or positions.
 				separateEnemies(enemies, 32.75f);
 				
@@ -170,7 +154,11 @@ int main( int argc, char* args[] )
 				// Clear the current renderer
 				SDL_RenderClear(gRenderer);
 
+				SDL_Rect* currentClip = player.getCurrentAnimationClip(frame);
+
 				// Render player at updated position
+				player.handleInput(currentKeyStates);
+				player.move(windowWidth, windowHeight);
 				player.render(gRenderer, gSpriteSheetTexture, currentClip);
 
 				// Render health bar border

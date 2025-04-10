@@ -23,17 +23,21 @@ public:
     int getMaxHealth() const;
     void setMaxHealth(int mh);
     void updateFlash();
+    void handleInput(const Uint8* keyStates);
+    SDL_Rect* getCurrentAnimationClip(int frame);
     SDL_Rect getHealthBarRect() const;
     SDL_Rect getHealthBarBorderRect() const;
+    enum Direction { UP, DOWN, LEFT, RIGHT };
+    Direction facingDirection = DOWN;
 
 private:
     int health;
     int posX = 0, posY = 0;
     int velX = 0, velY = 0;
-    int maxHealth = 100; // Add maxHealth
+    int maxHealth = 100; 
     bool recentlyHit = false;
     Uint32 lastDamageTime;
     bool isFlashing = false; // Flag for the flashing effect
     Uint32 flashTimer; // Timer for the flashing effect
-    const int PLAYER_SPEED = 8;
+    const int PLAYER_SPEED = 3;
 };

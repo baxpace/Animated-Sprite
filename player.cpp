@@ -1,4 +1,5 @@
 #include "player.h"
+#include "sprite_data.h"
 
 // SDL_Renderer* gRenderer = nullptr;
 int Player::getX() const { return posX; } // Get player X coordinate
@@ -11,22 +12,45 @@ void Player::setY(int y) { posY = y; } // Set player Y coordinate position
 Player::Player(int x, int y)
     : posX(x), posY(y), velX(0), velY(0), health(100) {}
 
-void Player::handleEvent(const SDL_Event& e) {
-    if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
-        switch (e.key.keysym.sym) {
-            case SDLK_UP:    velY -= PLAYER_SPEED; break;
-            case SDLK_DOWN:  velY += PLAYER_SPEED; break;
-            case SDLK_LEFT:  velX -= PLAYER_SPEED; break;
-            case SDLK_RIGHT: velX += PLAYER_SPEED; break;
-        }
-    } else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
-        switch (e.key.keysym.sym) {
-            case SDLK_UP:    velY += PLAYER_SPEED; break;
-            case SDLK_DOWN:  velY -= PLAYER_SPEED; break;
-            case SDLK_LEFT:  velX += PLAYER_SPEED; break;
-            case SDLK_RIGHT: velX -= PLAYER_SPEED; break;
-        }
+void Player::handleInput(const Uint8* keyStates) {
+    velX = 0;
+    velY = 0;
+
+    if (keyStates[SDL_SCANCODE_UP]) {
+        velY = -PLAYER_SPEED;
+        facingDirection = UP;
+    } else if (keyStates[SDL_SCANCODE_DOWN]) {
+        velY = PLAYER_SPEED;
+        facingDirection = DOWN;
     }
+
+    if (keyStates[SDL_SCANCODE_LEFT]) {
+        velX = -PLAYER_SPEED;
+        facingDirection = LEFT;
+    } else if (keyStates[SDL_SCANCODE_RIGHT]) {
+        velX = PLAYER_SPEED;
+        facingDirection = RIGHT;
+    }
+}
+
+SDL_Rect* Player::getCurrentAnimationClip(int frame) {
+    int index = frame / 4;
+
+    // Wrap around with WALKING_ANIMATION_FRAMES
+    index %= WALKING_ANIMATION_FRAMES;
+
+    if (velY < 0) {
+        return &gSpriteClipsUp[index];
+    } else if (velY > 0) {
+        return &gSpriteClipsDown[index];
+    } else if (velX < 0) {
+        return &gSpriteClipsLeft[index];
+    } else if (velX > 0) {
+        return &gSpriteClipsRight[index];
+    }
+
+    // Default: return standing frame
+    return &gSpriteClipsDown[1];
 }
 
 void Player::setPosition(int x, int y) {
@@ -51,22 +75,22 @@ void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* curren
     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
 }
 
-// void Player::move(int windowWidth, int windowHeight) {
-//     posX += velX;
-//     posY += velY;
+void Player::move(int windowWidth, int windowHeight) {
+    posX += velX;
+    posY += velY;
 
-//     // Clamp position to window boundaries
-//     if (posX < 0) posX = 0;
-//     if (posY < 0) posY = 0;
-//     if (posX > windowWidth - 50) posX = windowWidth - 64; // Adjust for player if texture size changes
-//     if (posY > windowHeight - 50) posY = windowHeight - 128;
-//     if (isFlashing) {
-//         flashTimer -= 0.1f; // Reduce timer (adjust based on game loop)
-//         if (flashTimer <= 0.0f) {
-//             isFlashing = false; // Stop flashing when timer runs out
-//         }
-//     }
-// }
+    // Clamp position to window boundaries
+    if (posX < 0) posX = 0;
+    if (posY < 0) posY = 0;
+    if (posX > windowWidth - 50) posX = windowWidth - 64; // Adjust for player if texture size changes
+    if (posY > windowHeight - 50) posY = windowHeight - 128;
+    if (isFlashing) {
+        flashTimer -= 0.1f; // Reduce timer (adjust based on game loop)
+        if (flashTimer <= 0.0f) {
+            isFlashing = false; // Stop flashing when timer runs out
+        }
+    }
+}
 
 SDL_Rect Player::getCollisionBox() const {
     return SDL_Rect{ posX, posY, 64, 128 };  // Adjust width/height if player texture changes

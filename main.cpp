@@ -5,11 +5,12 @@
 #include "collision.h"
 #include "initialize.h"
 #include "player.h"
+#include "particle.h"
 #include "sprite_data.h"
 
-// const int SCREEN_WIDTH = 1920;
-// const int SCREEN_HEIGHT = 1080;
-int windowWidth, windowHeight;
+
+int windowWidth = 1920;
+int windowHeight = 1080;
 const int PLAYER_SPEED = 8;
 int posX = windowWidth / 2;
 int posY = windowHeight / 2;
@@ -17,6 +18,9 @@ int posY = windowHeight / 2;
 // PTexture gCupcakeTexture;
 int ENEMY_WIDTH = gCupcakeTexture.getWidth();
 int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
+
+
+Uint32 lastTicks = SDL_GetTicks(); 
 
 int main( int argc, char* args[] )
 {
@@ -34,27 +38,18 @@ int main( int argc, char* args[] )
 		}
 		else
 		{	
-			//Main loop flag
-			bool quit = false;
+			bool quit = false;										 	// Main loop flag
+			SDL_Event e;												// Event handler
+			int frame = 0;											 	// Current animation frame
+			Uint32 lastSpawnTime = 0;								 	// Enemy spawn timing variables
+			Uint32 nextSpawnTime = 1000 + (rand() % 3000); 			 	// Random between 1000ms (1s) and 4000ms (4s)
+			SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight); 	// Get the screen width and height
+			Player player(windowWidth / 2, windowHeight / 2);		 	// Set the player position in the center of the screen
+			Uint32 currentTicks = SDL_GetTicks();						// Get current time
+			float deltaTime = (currentTicks - lastTicks) / 1000.0f; 	// in seconds
+			lastTicks = currentTicks;
+			std::vector<Particle> particles;							// a vector for spawned particles
 
-			//Event handler
-			SDL_Event e;
-
-			//Current animation frame
-			int frame = 0;
-
-			// Enemy spawn timing variables
-			Uint32 lastSpawnTime = 0;
-
-			// Random between 1000ms (1s) and 4000ms (4s)
-			Uint32 nextSpawnTime = 1000 + (rand() % 3000); 
-
-			//Get the screen width and height
-			SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
-
-			//Set the player position in the center of the screen
-			Player player(windowWidth / 2, windowHeight / 2);
-			
 			//While application is running
 			while (!quit)
 			{
@@ -82,9 +77,8 @@ int main( int argc, char* args[] )
 					if (windowWidth == 0 || windowHeight == 0) {
 						return -1;
 					}
-
-					int buffer = 100;  // Extra distance outside the screen
-
+					// Extra distance outside the screen
+					int buffer = 100;  
 					// Spawn outside viewport
 					int spawnX, spawnY;
 					int side = rand() % 4;
@@ -145,13 +139,6 @@ int main( int argc, char* args[] )
 					currentClip = &gSpriteClipsRight[frame / 4];
 				}
 
-				// Keep player inside the window
-				SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
-				if (playerX < 0) playerX = 0;
-				if (playerY < 0) playerY = 0;
-				if (playerX > windowWidth - 50) playerX = windowWidth - 50;
-				if (playerY > windowHeight - 10) playerY = windowHeight - 10;
-
 				// Spawns enemies on timer
 				spawnEnemy();           
 			
@@ -161,44 +148,71 @@ int main( int argc, char* args[] )
 				//check collision and if true, pop enemy off of list and remove from game
 				for (auto it = enemies.begin(); it != enemies.end(); ) {
 					if (checkCollision(player.getCollisionBox(), it->getCollisionBox())) {
-						player.reduceHealth(2);
-						// TODO: increment kill count
-						it = enemies.erase(it); // Remove the enemy
+						player.takeDamage(it->getDamage()); 
+						// Spawn explosion particles when collision detected
+						SDL_Color explosionColor = it->getParticleColor(); // Predefined per enemy type
+						for (int i = 0; i < 100; ++i) {
+							particles.emplace_back(it->getX(), it->getY(), explosionColor);
+						}
+						it = enemies.erase(it);
 					} else {
 						++it;
 					}
 				}
-				
+
+
 				// push enemies apart by adjusting their velocities or positions.
 				separateEnemies(enemies, 32.75f);
 				
 				// Clear screen **only once per frame**
 				SDL_SetRenderDrawColor(gRenderer, 0x87, 0x87, 0x95, 0xFF);
+
+				// Clear the current renderer
 				SDL_RenderClear(gRenderer);
 
 				// Render player at updated position
-				player.render(gSpriteSheetTexture, currentClip);
+				player.render(gRenderer, gSpriteSheetTexture, currentClip);
 
 				// Render health bar border
 				SDL_Rect healthBorder = player.getHealthBarBorderRect();
 				SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255); // Black border
-				SDL_RenderFillRect(gRenderer, &healthBorder);
+				SDL_RenderFillRect(gRenderer, &healthBorder); // Render the border behind the healthbar
 
-				// Render health bar over top of border
+				// Render health bar on top of border
 				SDL_Rect healthBar = player.getHealthBarRect();
-				if (player.isFlashing()) {
+				if (player.getIsFlashing()) {
 					SDL_SetRenderDrawColor(gRenderer, 255, 100, 100, 255); // Light red flash
 				} else {
 					SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
 				}
+
+				// Render and fill in rect with colour
 				SDL_RenderFillRect(gRenderer, &healthBar);
 
+				//set flash true or false
+				player.updateFlash(); 
+
 				// Render enemies & player
-				renderEnemies(gRenderer, gCupcakeTexture); 
+				renderEnemies(gRenderer, gCupcakeTexture);
+				
+								
+				// Spawn particles and eleminate if isAlive reports false (age < lifeTime)
+				for (auto it = particles.begin(); it != particles.end(); ) {
+					it->update(deltaTime);
+					if (!it->isAlive()) {
+						it = particles.erase(it);
+					} else {
+						++it;
+					}
+				}
+				//render particle effect
+				for (const auto& p : particles) {
+					p.render(gRenderer);
+				} 
 
 				// Update screen (only once per frame)
 				SDL_RenderPresent(gRenderer);
-			
+
 				// Cycle animation
 				++frame;
 				if (frame / 4 >= WALKING_ANIMATION_FRAMES)

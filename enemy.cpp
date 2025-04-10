@@ -1,7 +1,7 @@
 #include "enemy.h"
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 960;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 const int ENEMY_WIDTH = 32;    // Adjust based on your sprite size
 const int ENEMY_HEIGHT = 32;    // Adjust based on your sprite size
 
@@ -11,7 +11,8 @@ std::vector<Enemy> enemies;
 
 
 // Constructor
-Enemy::Enemy(float startX, float startY) : x(startX), y(startY) {}
+Enemy::Enemy(float x, float y, int damage)
+    : x(x), y(y), damage(damage) {}
 
 // Spawn enemies at random screen edges
 void spawnEnemy()
@@ -73,16 +74,21 @@ SDL_Rect Enemy::getCollisionBox() const {
     return SDL_Rect{ static_cast<int>(x), static_cast<int>(y), 32, 32 }; // Adjust to your enemy texture size
 }
 
+// Place in each enemy type to set custome particle colour
+SDL_Color Enemy::getParticleColor() const {
+    return { 255, 200, 150, 255 }; // light orange, for example
+}
+
 void separateEnemies(std::vector<Enemy>& enemies, float minDistance) {
     for (size_t i = 0; i < enemies.size(); i++) {
         for (size_t j = i + 1; j < enemies.size(); j++) {
             float dx = enemies[j].x - enemies[i].x;
             float dy = enemies[j].y - enemies[i].y;
             float distance = sqrt(dx * dx + dy * dy);
-
+            
             if (distance < minDistance && distance > 0) { // Avoid division by zero
                 float overlap = (minDistance - distance) / 2.0f;
-
+                
                 // Normalize displacement vector
                 float nx = dx / distance;
                 float ny = dy / distance;
@@ -103,4 +109,8 @@ int Enemy::getX() const {
 
 int Enemy::getY() const {
     return static_cast<int>(y);
+}
+
+int Enemy::getDamage() const {
+    return damage;
 }

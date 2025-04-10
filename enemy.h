@@ -6,13 +6,17 @@
 
 class Enemy {
     public:
-        Enemy(float x, float y);
+        Enemy(float x, float y, int damage = 2);
+        float x, y;
         void move(float speed, float playerX, float playerY);
         void render(SDL_Renderer* renderer, PTexture& texture) const;
         SDL_Rect getCollisionBox() const;
-        float x, y;
+        SDL_Color getParticleColor() const;
         int getX() const;
         int getY() const;
+        int getDamage() const;
+    private:
+        int damage;
     };
 
 extern void spawnEnemy();

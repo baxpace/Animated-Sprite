@@ -17,7 +17,6 @@ public:
     SDL_Rect getCollisionBox() const;
     void takeDamage(int dmg);
     void reduceHealth(int amount);
-    // Uint32 lastDamageTime = 0; // Tracks when damage occurred
     int getHealth() const;
     bool getIsFlashing() const { return isFlashing;} 
     int getMaxHealth() const;

@@ -15,8 +15,17 @@ class Enemy {
         int getX() const;
         int getY() const;
         int getDamage() const;
+        SDL_Color getRandomizedColor(const SDL_Color& base) const;
     private:
         int damage;
+        std::vector<SDL_Color> cupcakeColors = {
+            {245, 222, 179, 255}, // cake beige
+            {255, 255, 255, 255}, // icing white
+            {255, 50, 50, 255},   // cherry
+            {30, 30, 30, 255},    // eyes
+            {173, 216, 230, 255}, // sprinkle blue
+            {200, 160, 255, 255}  // sprinkle purple
+        };
     };
 
 extern void spawnEnemy();
@@ -24,3 +33,5 @@ extern std::vector<Enemy> enemies; // Places spawed enemies in a list
 extern void moveEnemies(std::vector<Enemy>& enemies, float playerX, float playerY, float playerWidth, float playerHeight, float speed);
 extern void renderEnemies(SDL_Renderer* gRenderer, const PTexture& enemyTexture);
 extern void separateEnemies(std::vector<Enemy>& enemies, float minDistance);
+
+

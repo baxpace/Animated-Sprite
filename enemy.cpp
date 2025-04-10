@@ -1,4 +1,6 @@
 #include "enemy.h"
+#include <algorithm>  // for std::min
+#include <cstdlib>    // for rand()
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -77,6 +79,17 @@ SDL_Rect Enemy::getCollisionBox() const {
 // Place in each enemy type to set custome particle colour
 SDL_Color Enemy::getParticleColor() const {
     return { 255, 200, 150, 255 }; // light orange, for example
+}
+
+SDL_Color Enemy::getRandomizedColor(const SDL_Color& base) const {
+    float brightnessFactor = 0.85f + static_cast<float>(rand() % 30) / 100.0f; // 0.85–1.15
+
+    SDL_Color colour;
+    colour.r = static_cast<Uint8>(std::min(255.0f, base.r * brightnessFactor));
+    colour.g = static_cast<Uint8>(std::min(255.0f, base.g * brightnessFactor));
+    colour.b = static_cast<Uint8>(std::min(255.0f, base.b * brightnessFactor));
+    colour.a = base.a;
+    return colour;
 }
 
 void separateEnemies(std::vector<Enemy>& enemies, float minDistance) {

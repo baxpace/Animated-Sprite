@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 Spawner::Spawner(int windowWidth, int windowHeight)
-    : windowWidth(windowWidth), windowHeight(windowHeight), lastSpawnTime(0), nextSpawnTime(1000 + rand() % 3000), buffer(100) {}
+    : windowWidth(windowWidth), windowHeight(windowHeight), lastSpawnTime(0), nextSpawnTime(500 + rand() % 2500), buffer(100) {}
 
 void Spawner::setNextSpawnTime(int minTime, int maxTime) {
     nextSpawnTime = minTime + (rand() % (maxTime - minTime));
@@ -49,6 +49,4 @@ void Spawner::spawnEnemy(std::vector<Enemy>& enemies) {
 
     // Create and add the enemy to the vector
     enemies.emplace_back(spawnX, spawnY);
-
-    // Optionally, you could introduce more spawn logic here based on the enemy type
 }

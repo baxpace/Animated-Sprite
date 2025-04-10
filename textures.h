@@ -37,4 +37,4 @@ class PTexture
 //Player texture defined in sprite_data.cpp
 extern PTexture gSpriteSheetTexture; 
 extern PTexture gCupcakeTexture;
-extern PTexture gPlayerTexture;
+extern PTexture gTileTexture;

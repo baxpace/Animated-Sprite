@@ -4,6 +4,7 @@
 SDL_Renderer* gRenderer = nullptr;
 PTexture gSpriteSheetTexture;
 PTexture gCupcakeTexture;
+// PTexture gTileTexture;
 
 PTexture::PTexture()
 {
@@ -83,22 +84,6 @@ void PTexture::render(int x, int y, SDL_Rect* clip) const { //changed from float
 
     SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);
 }
-
-// void PTexture::render( int x, int y, SDL_Rect* clip ) const
-// {
-// 	//Set rendering space and render to screen
-// 	SDL_Rect renderQuad = { x, y, mWidth, mHeight };
-
-// 	//Set clip rendering dimensions
-// 	if( clip != NULL )
-// 	{
-// 		renderQuad.w = clip->w;
-// 		renderQuad.h = clip->h;
-// 	}
-
-// 	//Render to screen
-// 	SDL_RenderCopy( gRenderer, mTexture, clip, &renderQuad );
-// }
 
 int PTexture::getWidth() const
 {

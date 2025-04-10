@@ -18,7 +18,7 @@ public:
     void takeDamage(int dmg);
     void reduceHealth(int amount);
     int getHealth() const;
-    bool getIsFlashing() const { return isFlashing;} 
+    bool getIsFlashing() const {return isFlashing;} 
     int getMaxHealth() const;
     void setMaxHealth(int mh);
     void updateFlash();
@@ -38,5 +38,5 @@ private:
     Uint32 lastDamageTime;
     bool isFlashing = false; // Flag for the flashing effect
     Uint32 flashTimer; // Timer for the flashing effect
-    const int PLAYER_SPEED = 3;
+    const int PLAYER_SPEED = 8;
 };

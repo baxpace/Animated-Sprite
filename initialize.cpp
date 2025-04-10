@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "initialize.h"
+#include "worldgen.h"
 
 SDL_Window* gWindow = NULL;
 
@@ -19,6 +20,8 @@ bool init()
 	}
 	else
 	{
+		//Initilize proceedural backgrounds for worldgen.cpp
+		initNoise();
 		//Set texture filtering to linear
 		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
 		{
@@ -76,6 +79,10 @@ bool loadMedia()
         printf( "Failed to load enemy texture!\n" );
         success = false;
     }
+	if (!gTileTexture.loadFromFile("simple_tiles.png")) {
+		printf("Failed to load simple_tiles.png!\n");
+		return false;
+	}
 	else
 	{
 		//Set sprite clips called from sprite_data.cpp
@@ -94,7 +101,8 @@ void close()
 	SDL_DestroyWindow( gWindow );
 	gWindow = NULL;
 	gRenderer = NULL;
-
+	gTileTexture.free();
+	
 	//Quit SDL subsystems
 	IMG_Quit();
 	SDL_Quit();

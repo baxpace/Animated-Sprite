@@ -40,11 +40,19 @@ void spawnEnemy()
 }
 
 // Render enemies
-void renderEnemies(SDL_Renderer* renderer, const PTexture& enemyTexture)
-{
-    for (const auto& enemy : enemies)
-    {
-        enemyTexture.render(enemy.x, enemy.y);
+// void renderEnemies(SDL_Renderer* renderer, const PTexture& enemyTexture)
+// {
+//     for (const auto& enemy : enemies)
+//     {
+//         enemyTexture.render(enemy.x, enemy.y);
+//     }
+// }
+
+void renderEnemies(SDL_Renderer* renderer, PTexture& texture, const SDL_Rect& cameraView) {
+    for (const auto& enemy : enemies) {
+        int screenX = enemy.x - cameraView.x;
+        int screenY = enemy.y - cameraView.y;
+        texture.render(screenX, screenY); // No need to pass cameraView to texture.render
     }
 }
 

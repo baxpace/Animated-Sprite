@@ -7,8 +7,9 @@ class Player {
 public:
     Player(int x, int y);
     void handleEvent(const SDL_Event& e);
-    void move(int windowWidth, int windowHeight);
-    void render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip) const;
+    void move();
+    // void render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip) const;
+    void render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip, const SDL_Rect& cameraView) const;
     void setPosition(int x, int y);
     int getX() const;
     int getY() const;

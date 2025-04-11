@@ -48,24 +48,88 @@ SDL_Point getTileFromNoise(float x, float y) {
     return { tileX, tileY };
 }
 
-void renderWorld()
+
+// void renderWorld(const SDL_Rect& cameraView)
+// {
+//     for (int x = 0; x < 215; ++x)
+//     {
+//         for (int y = 0; y < 96; ++y)
+//         {
+//             // World coordinates
+//             int worldX = x * 16;
+//             int worldY = y * 16;
+
+//             // Optional optimization: skip tiles outside the camera view
+//             if (worldX + 16 < cameraView.x || worldX > cameraView.x + cameraView.w ||
+//                 worldY + 16 < cameraView.y || worldY > cameraView.y + cameraView.h)
+//             {
+//                 continue; // Tile is not visible
+//             }
+
+//             // Get tile based on noise
+//             SDL_Point tile = getTileFromNoise(x, y);
+
+//             // Source rect (from tileset)
+//             SDL_Rect tileClip = { tile.x * 16, tile.y * 16, 16, 16 };
+
+//             // Destination rect (on screen), offset by camera
+//             SDL_Rect dest = { worldX - cameraView.x, worldY - cameraView.y, 16, 16 };
+
+//             // Render tile
+//             gTileTexture.render(dest.x, dest.y, &tileClip);
+//         }
+//     }
+// }
+
+// void renderWorld(const SDL_Rect& cameraView)
+// {
+//     const int tileSize = 16;
+
+//     int startX = (cameraView.x / tileSize) - 1;
+//     int startY = (cameraView.y / tileSize) - 1;
+//     int endX = ((cameraView.x + cameraView.w) / tileSize) + 1;
+//     int endY = ((cameraView.y + cameraView.h) / tileSize) + 1;
+
+//     for (int x = startX; x <= endX; ++x)
+//     {
+//         for (int y = startY; y <= endY; ++y)
+//         {
+//             SDL_Point tile = getTileFromNoise(x, y);
+//             SDL_Rect tileClip = { tile.x * tileSize, tile.y * tileSize, tileSize, tileSize };
+
+//             // Screen position relative to camera
+//             int screenX = x * tileSize - cameraView.x;
+//             int screenY = y * tileSize - cameraView.y;
+//             SDL_Rect dest = { screenX, screenY, tileSize, tileSize };
+
+//             gTileTexture.render(dest.x, dest.y, &tileClip);
+//         }
+//     }
+// }
+
+void renderWorld(const SDL_Rect& cameraView)
 {
-    for (int x = 0; x < 215; ++x)
+    int startX = cameraView.x / TILE_SIZE;
+    int startY = cameraView.y / TILE_SIZE;
+    int tilesX = cameraView.w / TILE_SIZE + 2; // +2 to cover edge cases
+    int tilesY = cameraView.h / TILE_SIZE + 2;
+
+    for (int x = startX; x < startX + tilesX; ++x)
     {
-        for (int y = 0; y < 96; ++y)
+        for (int y = startY; y < startY + tilesY; ++y)
         {
-            // Get noise-based tile coordinate from our 4x4 tileset
             SDL_Point tile = getTileFromNoise(x, y);
 
-            // Source rect (from tileset)
-            SDL_Rect tileClip = { tile.x * 16, tile.y * 16, 16, 16 };
+            SDL_Rect tileClip = { tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
-            // Destination rect (on screen)
-            SDL_Rect dest = { x * 16, y * 16, 16, 16 };
+            // Subtract cameraView.x/y to place the tile relative to screen
+            SDL_Rect dest = {
+                x * TILE_SIZE - cameraView.x,
+                y * TILE_SIZE - cameraView.y,
+                TILE_SIZE, TILE_SIZE
+            };
 
-            // Render to screen
             gTileTexture.render(dest.x, dest.y, &tileClip);
         }
     }
 }
-

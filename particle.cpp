@@ -10,9 +10,9 @@ const int MAX_PARTICLES = 1000;
 Particle::Particle(int x, int y, SDL_Color color)
     : posX(x), posY(y), color(color), age(0.0f)
 {
-    velX = static_cast<float>((rand() % 25) - 13); // -75 to +75
-    velY = static_cast<float>((rand() % 25) - 13);
-    lifetime = 5.5f + static_cast<float>(rand() % 100) / 50.0f; // ~3.5–4.5 seconds
+    velX = static_cast<float>((rand() % 50) - 25); // -75 to +75
+    velY = static_cast<float>((rand() % 50) - 25);
+    lifetime = 2.5f + static_cast<float>(rand() % 100) / 50.0f; // ~3.5–4.5 seconds
     size = 1.5f + static_cast<float>(rand() % 5); // 4–7 pixels
     angle = static_cast<float>(rand() % 360);
     rotationSpeed = static_cast<float>((rand() % 200) - 100); // -100° to +100° per sec

@@ -19,7 +19,9 @@ class PTexture
 		void free();
 
 		//Renders texture at given point
-		void render( int x, int y, SDL_Rect* clip = NULL ) const;
+		// void render( int x, int y, SDL_Rect* clip = NULL ) const;
+		void render(int x, int y, SDL_Rect* clip = nullptr, const SDL_Rect* camera = nullptr) const;
+		void renderEnemies(SDL_Renderer* renderer, PTexture& texture, const SDL_Rect& cameraView);
 
 		//Gets image dimensions
 		int getWidth() const;

@@ -9,6 +9,7 @@
 #include "particle.h"
 #include "sprite_data.h"
 #include "worldgen.h"
+#include "camera.h"
 
 int windowWidth = 1920;
 int windowHeight = 1080;
@@ -19,6 +20,7 @@ int ENEMY_HEIGHT = gCupcakeTexture.getHeight();
 
 Uint32 lastTicks = SDL_GetTicks(); 
 Spawner spawner(windowWidth, windowHeight);
+Camera camera(windowWidth, windowHeight);
 
 int main( int argc, char* args[] )
 {
@@ -42,12 +44,14 @@ int main( int argc, char* args[] )
 			Uint32 lastSpawnTime = 0;								 	// Enemy spawn timing variables
 			Uint32 nextSpawnTime = 1000 + (rand() % 3000); 			 	// Random between 1000ms (1s) and 4000ms (4s)
 			SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight); 	// Get the screen width and height
-			Player player(windowWidth / 2, windowHeight / 2);		 	// Set the player position in the center of the screen
+			Player player(0, 0);		 	// Set the player position in the center of the screen
 			Uint32 currentTicks = SDL_GetTicks();						// Get current time
 			float deltaTime = (currentTicks - lastTicks) / 1000.0f; 	// in seconds
   			lastTicks = currentTicks;
 			particlePool.reserve(MAX_PARTICLES);
-			
+			// Set initial player position
+			player.setPosition(windowWidth, windowHeight);
+
 			// While application is running
 			while (!quit)
 			{
@@ -68,18 +72,12 @@ int main( int argc, char* args[] )
 				int playerX = player.getX();
 				int playerY = player.getY();
 
-				// Set initial player position
-				player.setPosition(playerX, playerY);
-
 				// Get keyboard state
 				const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
     
 				Uint32 currentTime = SDL_GetTicks();    
 				spawner.update(currentTime, enemies);
 			
-				// Move each enemy toward player (static player width/height currently being used)
-				moveEnemies(enemies, playerX, playerY, 64, 128, 1.25f);
-
 				for (auto it = enemies.begin(); it != enemies.end(); ) {
 					if (checkCollision(player.getCollisionBox(), it->getCollisionBox())) {
 						player.takeDamage(it->getDamage());
@@ -104,37 +102,38 @@ int main( int argc, char* args[] )
 
 				// Clear the current renderer
 				SDL_RenderClear(gRenderer);
-
-				// procedurally generate random tile based background
-				renderWorld();
+				std::cout << "Rendering player at: " << &player << " Pos: " << player.getX() << ", " << player.getY() << "\n";
 
 				// Render player at updated position
-				SDL_Rect* currentClip = player.getCurrentAnimationClip(frame);
+				// Handle input and movement
 				player.handleInput(currentKeyStates);
-				player.move(windowWidth, windowHeight);
-				player.render(gRenderer, gSpriteSheetTexture, currentClip);
+				player.move();
+								
+				// Move each enemy toward player (static player width/height currently being used)
+				moveEnemies(enemies, player.getX(), player.getY(), 64, 128, 1.25f);
+				std::cout << "Enemy moving towards: " << player.getX() << ", " << player.getY() << "\n";
 
-				// Render health bar border
-				SDL_Rect healthBorder = player.getHealthBarBorderRect();
-				SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255); // Black border
-				SDL_RenderFillRect(gRenderer, &healthBorder); // Render the border behind the healthbar
+				camera.centerOn(player.getX() + 32, player.getY() + 64); 
 
-				// Render health bar on top of border
-				SDL_Rect healthBar = player.getHealthBarRect();
-				if (player.getIsFlashing()) {
-					SDL_SetRenderDrawColor(gRenderer, 255, 100, 100, 255); // Light red flash
-				} else {
-					SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
-				}
+				// Render background with camera offset
+				renderWorld(camera.getView());
+				SDL_Rect view = camera.getView();
+				std::cout << "Camera X: " << view.x << " Y: " << view.y << std::endl;
 
-				// Render and fill in rect with colour
-				SDL_RenderFillRect(gRenderer, &healthBar);
+				// Render player (texture + health bar) with camera offset
+				SDL_Rect* currentClip = player.getCurrentAnimationClip(frame);
+				player.render(gRenderer, gSpriteSheetTexture, currentClip, camera.getView());
+
+				std::cout << "Player Pos: " << player.getX() << ", " << player.getY() << "\n";
+				std::cout << "Camera: " << camera.getView().x << ", " << camera.getView().y << "\n";
 
 				//set flash true or false
 				player.updateFlash(); 
 
 				// Render enemies & player
-				renderEnemies(gRenderer, gCupcakeTexture);
+				// renderEnemies(gRenderer, gCupcakeTexture);
+				
+				renderEnemies(gRenderer, gCupcakeTexture, camera.getView());
 				
 				// Spawn particles and eliminate if isAlive reports false (age < lifeTime)
 				for (auto it = particles.begin(); it != particles.end(); ) {

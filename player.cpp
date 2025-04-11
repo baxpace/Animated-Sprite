@@ -58,38 +58,86 @@ void Player::setPosition(int x, int y) {
     posY = y;
 }
 
-void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip) const {
-    SDL_Rect healthBar = getHealthBarRect();
+// void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip) const {
+//     SDL_Rect healthBar = getHealthBarRect();
 
+//     if (isFlashing) {
+//         SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255); // White flash
+//     } else {
+//         SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
+//     }
+//     // Render the health bar
+//     SDL_RenderFillRect(gRenderer, &healthBar);  // Directly passing the reference
+
+//     texture.render(posX, posY, currentClip);
+
+//     // Reset the drawing color to normal (white)
+//     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+// }
+
+// void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip, const SDL_Rect& cameraView) const {
+//     // Apply camera offset to player position
+//     int renderX = static_cast<int>(posX) - cameraView.x;
+//     int renderY = static_cast<int>(posY) - cameraView.y;
+
+//     // Adjust health bar position relative to camera
+//     SDL_Rect healthBar = getHealthBarRect();
+//     healthBar.x -= cameraView.x;
+//     healthBar.y -= cameraView.y;
+
+//     // Flashing effect
+//     if (isFlashing) {
+//         SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255); // White flash
+//     } else {
+//         SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
+//     }
+
+//     SDL_RenderFillRect(gRenderer, &healthBar);  // Render health bar
+
+//     // Render the player sprite with offset
+//     texture.render(renderX, renderY, currentClip);
+
+//     // Reset drawing color to default
+//     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+// }
+
+void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip, const SDL_Rect& cameraView) const {
+    // Apply camera offset to player position
+    int renderX = static_cast<int>(posX) - cameraView.x;
+    int renderY = static_cast<int>(posY) - cameraView.y;
+
+    // Render player sprite with camera offset
+    texture.render(renderX, renderY, currentClip);
+    
+    // Adjust health bar and border position relative to camera
+    SDL_Rect healthBar = getHealthBarRect();
+    SDL_Rect healthBorder = getHealthBarBorderRect();
+
+    healthBar.x -= cameraView.x;
+    healthBar.y -= cameraView.y;
+    healthBorder.x -= cameraView.x;
+    healthBorder.y -= cameraView.y;
+
+    // Render health bar border first (black box behind red bar)
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255); // Black border
+    SDL_RenderFillRect(gRenderer, &healthBorder);
+
+    // Flashing effect for red bar
     if (isFlashing) {
-        SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255); // White flash
+        SDL_SetRenderDrawColor(gRenderer, 255, 100, 100, 255); // Light red flash
     } else {
         SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
     }
-    // Render the health bar
-    SDL_RenderFillRect(gRenderer, &healthBar);  // Directly passing the reference
 
-    texture.render(posX, posY, currentClip);
+    SDL_RenderFillRect(gRenderer, &healthBar); // Render health bar
 
-    // Reset the drawing color to normal (white)
+    // Reset drawing color
     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
 }
 
-void Player::move(int windowWidth, int windowHeight) {
+void Player::move() {
     posX += velX;
     posY += velY;
-
-    // Clamp position to window boundaries
-    if (posX < 0) posX = 0;
-    if (posY < 0) posY = 0;
-    if (posX > windowWidth - 50) posX = windowWidth - 64; // Adjust for player if texture size changes
-    if (posY > windowHeight - 50) posY = windowHeight - 128;
-    if (isFlashing) {
-        flashTimer -= 0.1f; // Reduce timer (adjust based on game loop)
-        if (flashTimer <= 0.0f) {
-            isFlashing = false; // Stop flashing when timer runs out
-        }
-    }
 }
 
 SDL_Rect Player::getCollisionBox() const {

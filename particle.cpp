@@ -6,7 +6,6 @@ std::vector<Particle> particles;							// a vector for spawned particles
 std::vector<Particle> particlePool;
 const int MAX_PARTICLES = 1000;
 
-
 Particle::Particle(int x, int y, SDL_Color color)
     : posX(x), posY(y), color(color), age(0.0f)
 {
@@ -38,31 +37,30 @@ bool Particle::isAlive() const {
     return age < lifetime;
 }
 
-void Particle::render(SDL_Renderer* renderer) const {
-    // The rectangle for particle size and position
+void Particle::render(SDL_Renderer* renderer, const SDL_Rect& cameraView) const {
+    // Offset the position by the camera view to stay in sync with world movement
     SDL_Rect rect = {
-        static_cast<int>(posX - size / 2), // Center the particle
-        static_cast<int>(posY - size / 2),
+        static_cast<int>(posX - cameraView.x - size / 2), // Center and offset by camera
+        static_cast<int>(posY - cameraView.y - size / 2),
         static_cast<int>(size),
         static_cast<int>(size)
     };
 
-    // Create a solid-colored texture once and reuse it if possible
+    // Create a solid-colored texture once and reuse it
     static SDL_Texture* particleTex = nullptr;
 
     if (!particleTex) {
-        // Create the texture only once, not on every render call
         particleTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1, 1);
         SDL_SetTextureBlendMode(particleTex, SDL_BLENDMODE_BLEND);
     }
 
-    // Set the color of the particle
+    // Set the texture to the particle's color and alpha
     SDL_SetRenderTarget(renderer, particleTex);
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, alpha);
     SDL_RenderClear(renderer);
     SDL_SetRenderTarget(renderer, nullptr);
 
-    // Render the particle (texture is reused)
+    // Render the particle with rotation
     SDL_RenderCopyEx(renderer, particleTex, nullptr, &rect, angle, nullptr, SDL_FLIP_NONE);
 }
 
@@ -79,11 +77,11 @@ void spawnParticle(int x, int y, SDL_Color color) {
     }
 }
 
-void updateAndRenderParticles(SDL_Renderer* renderer, float deltaTime) {
+void updateAndRenderParticles(SDL_Renderer* renderer, float deltaTime, const SDL_Rect& cameraView) {
     for (auto& p : particlePool) {
         if (p.isAlive()) {
             p.update(deltaTime);
-            p.render(renderer);
+            p.render(renderer, cameraView); // ✅ Now matches the new function signature
         }
     }
 }

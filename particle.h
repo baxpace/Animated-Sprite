@@ -6,7 +6,7 @@ class Particle {
     public:
         Particle(int x = 0, int y = 0, SDL_Color color = {255, 255, 255, 255}); // Default constructor for reuse        
         void update(float deltaTime);
-        void render(SDL_Renderer* renderer) const;
+        void render(SDL_Renderer* renderer, const SDL_Rect& cameraView) const;
         bool isAlive() const;
         void reset(int x, int y, SDL_Color color); // Reset particle state for reuse
     private:
@@ -26,4 +26,4 @@ extern std::vector<Particle> particles;
 extern std::vector<Particle> particlePool;
 extern const int MAX_PARTICLES;
 void spawnParticle(int x, int y, SDL_Color color);
-void updateAndRenderParticles(SDL_Renderer* renderer, float deltaTime);
+void updateAndRenderParticles(SDL_Renderer* renderer, float deltaTime, const SDL_Rect& cameraView);

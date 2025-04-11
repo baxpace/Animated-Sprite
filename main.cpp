@@ -49,7 +49,6 @@ int main( int argc, char* args[] )
 			float deltaTime = (currentTicks - lastTicks) / 1000.0f; 	// in seconds
   			lastTicks = currentTicks;
 			particlePool.reserve(MAX_PARTICLES);
-			// Set initial player position
 			player.setPosition(windowWidth, windowHeight);
 
 			// While application is running
@@ -130,11 +129,8 @@ int main( int argc, char* args[] )
 				//set flash true or false
 				player.updateFlash(); 
 
-				// Render enemies & player
-				// renderEnemies(gRenderer, gCupcakeTexture);
-				
 				renderEnemies(gRenderer, gCupcakeTexture, camera.getView());
-				
+
 				// Spawn particles and eliminate if isAlive reports false (age < lifeTime)
 				for (auto it = particles.begin(); it != particles.end(); ) {
 					it->update(deltaTime);
@@ -145,11 +141,11 @@ int main( int argc, char* args[] )
 					}
 				}
 				//render particle effect
-				for (const auto& p : particles) {
-					p.render(gRenderer);
+				for (auto& p : particlePool) {
+					p.render(gRenderer, camera.getView());
 				}
 				
-				updateAndRenderParticles(gRenderer, deltaTime);
+				updateAndRenderParticles(gRenderer, deltaTime, camera.getView());
 
 				// Update screen (only once per frame)
 				SDL_RenderPresent(gRenderer);

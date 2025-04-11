@@ -58,49 +58,6 @@ void Player::setPosition(int x, int y) {
     posY = y;
 }
 
-// void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip) const {
-//     SDL_Rect healthBar = getHealthBarRect();
-
-//     if (isFlashing) {
-//         SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255); // White flash
-//     } else {
-//         SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
-//     }
-//     // Render the health bar
-//     SDL_RenderFillRect(gRenderer, &healthBar);  // Directly passing the reference
-
-//     texture.render(posX, posY, currentClip);
-
-//     // Reset the drawing color to normal (white)
-//     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
-// }
-
-// void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip, const SDL_Rect& cameraView) const {
-//     // Apply camera offset to player position
-//     int renderX = static_cast<int>(posX) - cameraView.x;
-//     int renderY = static_cast<int>(posY) - cameraView.y;
-
-//     // Adjust health bar position relative to camera
-//     SDL_Rect healthBar = getHealthBarRect();
-//     healthBar.x -= cameraView.x;
-//     healthBar.y -= cameraView.y;
-
-//     // Flashing effect
-//     if (isFlashing) {
-//         SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255); // White flash
-//     } else {
-//         SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255); // Normal red
-//     }
-
-//     SDL_RenderFillRect(gRenderer, &healthBar);  // Render health bar
-
-//     // Render the player sprite with offset
-//     texture.render(renderX, renderY, currentClip);
-
-//     // Reset drawing color to default
-//     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
-// }
-
 void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* currentClip, const SDL_Rect& cameraView) const {
     // Apply camera offset to player position
     int renderX = static_cast<int>(posX) - cameraView.x;
@@ -108,7 +65,7 @@ void Player::render(SDL_Renderer* gRenderer, PTexture& texture, SDL_Rect* curren
 
     // Render player sprite with camera offset
     texture.render(renderX, renderY, currentClip);
-    
+
     // Adjust health bar and border position relative to camera
     SDL_Rect healthBar = getHealthBarRect();
     SDL_Rect healthBorder = getHealthBarBorderRect();

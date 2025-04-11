@@ -39,15 +39,6 @@ void spawnEnemy()
     nextSpawnTime = 1000 + (rand() % 3000); // Reset spawn timer
 }
 
-// Render enemies
-// void renderEnemies(SDL_Renderer* renderer, const PTexture& enemyTexture)
-// {
-//     for (const auto& enemy : enemies)
-//     {
-//         enemyTexture.render(enemy.x, enemy.y);
-//     }
-// }
-
 void renderEnemies(SDL_Renderer* renderer, PTexture& texture, const SDL_Rect& cameraView) {
     for (const auto& enemy : enemies) {
         int screenX = enemy.x - cameraView.x;

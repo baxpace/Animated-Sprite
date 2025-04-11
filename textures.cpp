@@ -4,7 +4,6 @@
 SDL_Renderer* gRenderer = nullptr;
 PTexture gSpriteSheetTexture;
 PTexture gCupcakeTexture;
-// PTexture gTileTexture;
 
 PTexture::PTexture()
 {
@@ -55,7 +54,6 @@ bool PTexture::loadFromFile( std::string path )
 		//Get rid of old loaded surface
 		SDL_FreeSurface( loadedSurface );
 	}
-
 	//Return success
 	mTexture = newTexture;
 	return mTexture != NULL;
@@ -81,7 +79,6 @@ void PTexture::render(int x, int y, SDL_Rect* clip) const { //changed from float
         renderQuad.w = clip->w;
         renderQuad.h = clip->h;
     }
-
     SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);
 }
 
@@ -94,4 +91,3 @@ int PTexture::getHeight() const
 {
 	return mHeight;
 }
-

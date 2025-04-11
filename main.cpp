@@ -46,9 +46,9 @@ int main( int argc, char* args[] )
 			Uint32 currentTicks = SDL_GetTicks();						// Get current time
 			float deltaTime = (currentTicks - lastTicks) / 1000.0f; 	// in seconds
   			lastTicks = currentTicks;
-			std::vector<Particle> particles;							// a vector for spawned particles
-
-			//While application is running
+			particlePool.reserve(MAX_PARTICLES);
+			
+			// While application is running
 			while (!quit)
 			{
 				// Handle events on queue
@@ -83,15 +83,13 @@ int main( int argc, char* args[] )
 				for (auto it = enemies.begin(); it != enemies.end(); ) {
 					if (checkCollision(player.getCollisionBox(), it->getCollisionBox())) {
 						player.takeDamage(it->getDamage());
-				
-						// Spawn explosion particles when collision detected
+						
 						for (int i = 0; i < 100; ++i) {
-							// Use the getRandomizedColor function from Enemy (or Cupcake)
-							SDL_Color baseColor = it->getParticleColor();  // Assuming this function exists to return a base color
+							SDL_Color baseColor = it->getParticleColor();
 							SDL_Color variedColor = it->getRandomizedColor(baseColor);
-							particles.emplace_back(it->getX(), it->getY(), variedColor);
+							spawnParticle(it->getX(), it->getY(), variedColor);
 						}
-				
+						
 						it = enemies.erase(it);
 					} else {
 						++it;
@@ -106,10 +104,12 @@ int main( int argc, char* args[] )
 
 				// Clear the current renderer
 				SDL_RenderClear(gRenderer);
+
+				// procedurally generate random tile based background
 				renderWorld();
-				SDL_Rect* currentClip = player.getCurrentAnimationClip(frame);
 
 				// Render player at updated position
+				SDL_Rect* currentClip = player.getCurrentAnimationClip(frame);
 				player.handleInput(currentKeyStates);
 				player.move(windowWidth, windowHeight);
 				player.render(gRenderer, gSpriteSheetTexture, currentClip);
@@ -136,7 +136,7 @@ int main( int argc, char* args[] )
 				// Render enemies & player
 				renderEnemies(gRenderer, gCupcakeTexture);
 				
-				// Spawn particles and eleminate if isAlive reports false (age < lifeTime)
+				// Spawn particles and eliminate if isAlive reports false (age < lifeTime)
 				for (auto it = particles.begin(); it != particles.end(); ) {
 					it->update(deltaTime);
 					if (!it->isAlive()) {
@@ -148,7 +148,9 @@ int main( int argc, char* args[] )
 				//render particle effect
 				for (const auto& p : particles) {
 					p.render(gRenderer);
-				} 
+				}
+				
+				updateAndRenderParticles(gRenderer, deltaTime);
 
 				// Update screen (only once per frame)
 				SDL_RenderPresent(gRenderer);
